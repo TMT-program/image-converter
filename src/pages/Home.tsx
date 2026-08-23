@@ -155,15 +155,6 @@ export function Home() {
         </p>
       </div>
 
-      {activeTab === 'image' && (
-        <div className="flex items-start gap-2 bg-blue-50 border border-blue-200 rounded-xl p-3">
-          <span className="text-blue-600 text-lg">🛡️</span>
-          <p className="text-sm text-blue-700">
-            変換後の画像から位置情報などのExif（撮影情報）は自動的に削除されます
-          </p>
-        </div>
-      )}
-
       {/* 画像変換タブ */}
       {activeTab === 'image' && (
         <>
