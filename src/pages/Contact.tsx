@@ -1,6 +1,14 @@
-const CONTACT_EMAIL = 'kurinamis@gmail.com'
+// メールアドレスを分割して保持し、静的HTML上に平文で出さないようにする
+const CONTACT_USER = 'kurinamis'
+const CONTACT_DOMAIN = 'gmail.com'
 
 export function Contact() {
+  function handleClick() {
+    const address = `${CONTACT_USER}@${CONTACT_DOMAIN}`
+    const subject = encodeURIComponent('画像変換・軽量化ツールについて')
+    window.location.href = `mailto:${address}?subject=${subject}`
+  }
+
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
       <div className="bg-white rounded-2xl border border-gray-200 p-6 sm:p-8 text-center">
@@ -8,13 +16,12 @@ export function Contact() {
         <p className="text-sm text-gray-500 mb-6">
           ご質問・ご要望・不具合のご報告はメールでお気軽にどうぞ。
         </p>
-        <a
-          href={`mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent('画像変換・軽量化ツールについて')}`}
+        <button
+          onClick={handleClick}
           className="inline-block px-6 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-colors"
         >
           メールで問い合わせる
-        </a>
-        <p className="text-xs text-gray-400 mt-4">{CONTACT_EMAIL}</p>
+        </button>
       </div>
     </div>
   )
