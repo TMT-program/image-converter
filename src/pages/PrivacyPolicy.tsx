@@ -1,3 +1,5 @@
+import { usePageMeta } from '../hooks/usePageMeta'
+
 function H2({ children }: { children: React.ReactNode }) {
   return <h2 className="text-base font-bold text-gray-800 mt-6 mb-2">{children}</h2>
 }
@@ -6,6 +8,11 @@ function P({ children }: { children: React.ReactNode }) {
 }
 
 export function PrivacyPolicy() {
+  usePageMeta(
+    'プライバシーポリシー | 画像変換・軽量化ツール',
+    '画像変換・軽量化ツールのプライバシーポリシーです。すべての処理はブラウザ内で完結し、ファイルが外部サーバーに送信されることはありません。'
+  )
+
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
       <div className="bg-white rounded-2xl border border-gray-200 p-6 sm:p-8">

@@ -1,8 +1,15 @@
+import { usePageMeta } from '../hooks/usePageMeta'
+
 // メールアドレスを分割して保持し、静的HTML上に平文で出さないようにする
 const CONTACT_USER = 'kurinamis'
 const CONTACT_DOMAIN = 'gmail.com'
 
 export function Contact() {
+  usePageMeta(
+    'お問い合わせ | 画像変換・軽量化ツール',
+    '画像変換・軽量化ツールへのご質問・ご要望・不具合のご報告はこちらから。'
+  )
+
   function handleClick() {
     const address = `${CONTACT_USER}@${CONTACT_DOMAIN}`
     const subject = encodeURIComponent('画像変換・軽量化ツールについて')

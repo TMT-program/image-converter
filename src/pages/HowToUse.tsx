@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { AdPlaceholder } from '../components/AdPlaceholder'
+import { usePageMeta } from '../hooks/usePageMeta'
 
 interface Step {
   num: string
@@ -31,6 +32,11 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 }
 
 export function HowToUse() {
+  usePageMeta(
+    '使い方ガイド | 画像変換・PDF圧縮・QRコード作成の無料ツール',
+    '画像変換、PDF圧縮・結合・分割、QRコード生成、トリミング、Favicon作成、カラーパレット抽出など、無料ツールの使い方をわかりやすく解説します。'
+  )
+
   return (
     <div className="max-w-2xl mx-auto px-4 py-8 space-y-6">
       <div>
