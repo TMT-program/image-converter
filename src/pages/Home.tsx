@@ -11,12 +11,26 @@ import type { ConversionSettings, ConvertedFile } from '../types'
 
 const PdfTab = lazy(() => import('../components/PdfTab').then((m) => ({ default: m.PdfTab })))
 const QrTab = lazy(() => import('../components/QrTab').then((m) => ({ default: m.QrTab })))
+const CropRotateTab = lazy(() => import('../components/CropRotateTab').then((m) => ({ default: m.CropRotateTab })))
+const FaviconTab = lazy(() => import('../components/FaviconTab').then((m) => ({ default: m.FaviconTab })))
+const ColorPaletteTab = lazy(() => import('../components/ColorPaletteTab').then((m) => ({ default: m.ColorPaletteTab })))
+const Base64Tab = lazy(() => import('../components/Base64Tab').then((m) => ({ default: m.Base64Tab })))
 
 function TabLoading() {
   return <p className="text-center text-sm text-gray-400 py-8">読み込み中...</p>
 }
 
-type AppTab = 'image' | 'pdf' | 'qr'
+type AppTab = 'image' | 'pdf' | 'qr' | 'crop' | 'favicon' | 'palette' | 'base64'
+
+const TABS: { value: AppTab; label: string }[] = [
+  { value: 'image', label: '🖼️ 画像変換' },
+  { value: 'pdf', label: '📄 PDF変換' },
+  { value: 'qr', label: '📷 QRコード' },
+  { value: 'crop', label: '✂️ トリミング' },
+  { value: 'favicon', label: '⭐ Favicon' },
+  { value: 'palette', label: '🎨 カラー抽出' },
+  { value: 'base64', label: '🔤 Base64' },
+]
 
 const DEFAULT_SETTINGS: ConversionSettings = {
   outputFormat: 'image/jpeg',
@@ -116,17 +130,13 @@ export function Home() {
     <div className="max-w-2xl mx-auto px-4 py-6 space-y-5">
 
       {/* タブ切り替え */}
-      <div className="flex gap-2 bg-gray-100 p-1 rounded-xl">
-        {([
-          { value: 'image', label: '🖼️ 画像変換' },
-          { value: 'pdf', label: '📄 PDF変換' },
-          { value: 'qr', label: '📷 QRコード' },
-        ] as { value: AppTab; label: string }[]).map((tab) => (
+      <div className="flex flex-wrap gap-2 bg-gray-100 p-1 rounded-xl">
+        {TABS.map((tab) => (
           <button
             key={tab.value}
             onClick={() => setActiveTab(tab.value)}
             className={[
-              'flex-1 py-2 rounded-lg text-sm font-semibold transition-colors',
+              'flex-1 min-w-[30%] py-2 rounded-lg text-sm font-semibold transition-colors',
               activeTab === tab.value
                 ? 'bg-white text-blue-600 shadow'
                 : 'text-gray-500 hover:text-gray-700',
@@ -223,6 +233,26 @@ export function Home() {
       {activeTab === 'qr' && (
         <Suspense fallback={<TabLoading />}>
           <QrTab />
+        </Suspense>
+      )}
+      {activeTab === 'crop' && (
+        <Suspense fallback={<TabLoading />}>
+          <CropRotateTab />
+        </Suspense>
+      )}
+      {activeTab === 'favicon' && (
+        <Suspense fallback={<TabLoading />}>
+          <FaviconTab />
+        </Suspense>
+      )}
+      {activeTab === 'palette' && (
+        <Suspense fallback={<TabLoading />}>
+          <ColorPaletteTab />
+        </Suspense>
+      )}
+      {activeTab === 'base64' && (
+        <Suspense fallback={<TabLoading />}>
+          <Base64Tab />
         </Suspense>
       )}
 
