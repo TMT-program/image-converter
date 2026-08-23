@@ -113,6 +113,83 @@ export async function pdfToImages(
   return results
 }
 
+// PDFの各ページをラスタライズして再構築することでファイルサイズを圧縮する
+export async function compressPdf(
+  file: File,
+  quality: number,
+  onProgress?: (done: number, total: number) => void,
+): Promise<Blob> {
+  const pdfjsLib = await import('pdfjs-dist')
+  pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`
+
+  const arrayBuffer = await file.arrayBuffer()
+  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
+  const total = pdf.numPages
+
+  const outDoc = await PDFDocument.create()
+
+  for (let i = 1; i <= total; i++) {
+    const page = await pdf.getPage(i)
+    const viewport = page.getViewport({ scale: 1.5 })
+
+    const canvas = document.createElement('canvas')
+    canvas.width = viewport.width
+    canvas.height = viewport.height
+    const ctx = canvas.getContext('2d')!
+    await page.render({ canvasContext: ctx, canvas, viewport }).promise
+
+    const blob = await new Promise<Blob>((resolve, reject) => {
+      canvas.toBlob((b) => b ? resolve(b) : reject(new Error('圧縮に失敗しました')), 'image/jpeg', quality)
+    })
+    const buf = await blob.arrayBuffer()
+    const embedded = await outDoc.embedJpg(buf)
+    const outPage = outDoc.addPage([viewport.width, viewport.height])
+    outPage.drawImage(embedded, { x: 0, y: 0, width: viewport.width, height: viewport.height })
+
+    onProgress?.(i, total)
+  }
+
+  const pdfBytes = await outDoc.save()
+  return new Blob([pdfBytes.buffer as ArrayBuffer], { type: 'application/pdf' })
+}
+
+// 複数のPDFを1つに結合する
+export async function mergePdfs(files: File[]): Promise<Blob> {
+  const outDoc = await PDFDocument.create()
+
+  for (const file of files) {
+    const arrayBuffer = await file.arrayBuffer()
+    const srcDoc = await PDFDocument.load(arrayBuffer)
+    const pages = await outDoc.copyPages(srcDoc, srcDoc.getPageIndices())
+    pages.forEach((p) => outDoc.addPage(p))
+  }
+
+  const pdfBytes = await outDoc.save()
+  return new Blob([pdfBytes.buffer as ArrayBuffer], { type: 'application/pdf' })
+}
+
+// PDFをページごとに分割し、1ページ1PDFのリストを返す
+export async function splitPdf(file: File): Promise<{ blob: Blob; filename: string }[]> {
+  const arrayBuffer = await file.arrayBuffer()
+  const srcDoc = await PDFDocument.load(arrayBuffer)
+  const total = srcDoc.getPageCount()
+  const base = file.name.replace(/\.pdf$/i, '')
+  const results: { blob: Blob; filename: string }[] = []
+
+  for (let i = 0; i < total; i++) {
+    const outDoc = await PDFDocument.create()
+    const [page] = await outDoc.copyPages(srcDoc, [i])
+    outDoc.addPage(page)
+    const pdfBytes = await outDoc.save()
+    results.push({
+      blob: new Blob([pdfBytes.buffer as ArrayBuffer], { type: 'application/pdf' }),
+      filename: `${base}_p${String(i + 1).padStart(2, '0')}.pdf`,
+    })
+  }
+
+  return results
+}
+
 export function downloadPdf(blob: Blob, filename: string): void {
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { ConversionSettings, OutputFormat, TargetSizePreset } from '../types'
+import type { ConversionSettings, OutputFormat, ResizeMode, TargetSizePreset } from '../types'
 import { TARGET_SIZE_OPTIONS } from '../constants/presets'
 
 interface Props {
@@ -28,6 +28,22 @@ export function ConversionSettingsPanel({ settings, onChange }: Props) {
     onChange({ ...settings, targetSizePreset: 'custom', targetSizeKB: kb })
   }
 
+  function setResizeMode(resizeMode: ResizeMode) {
+    onChange({ ...settings, resizeMode, resizeValue: resizeMode === 'none' ? null : (settings.resizeValue ?? 1600) })
+  }
+
+  function setResizeValue(value: string) {
+    const n = parseInt(value)
+    onChange({ ...settings, resizeValue: n > 0 ? n : null })
+  }
+
+  const resizeModes: { value: ResizeMode; label: string }[] = [
+    { value: 'none', label: 'リサイズしない' },
+    { value: 'longEdge', label: '長辺を指定' },
+    { value: 'width', label: '幅を指定' },
+    { value: 'height', label: '高さを指定' },
+  ]
+
   const formats: { value: OutputFormat; label: string }[] = [
     { value: 'image/jpeg', label: 'JPEG' },
     { value: 'image/png', label: 'PNG' },
@@ -41,6 +57,43 @@ export function ConversionSettingsPanel({ settings, onChange }: Props) {
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-5">
+      {/* リサイズ */}
+      <div>
+        <p className="text-sm font-semibold text-gray-600 mb-2">サイズ変更（リサイズ）</p>
+        <div className="flex flex-wrap gap-2 items-center">
+          {resizeModes.map((m) => (
+            <button
+              key={m.value}
+              onClick={() => setResizeMode(m.value)}
+              className={[
+                'px-3 py-1.5 rounded-lg border text-sm font-medium transition-colors',
+                settings.resizeMode === m.value
+                  ? 'bg-blue-600 text-white border-blue-600'
+                  : 'bg-white text-gray-600 border-gray-300 hover:border-blue-400',
+              ].join(' ')}
+            >
+              {m.label}
+            </button>
+          ))}
+          {settings.resizeMode !== 'none' && (
+            <div className="flex gap-1 items-center">
+              <input
+                type="number"
+                min="1"
+                max="10000"
+                value={settings.resizeValue ?? ''}
+                onChange={(e) => setResizeValue(e.target.value)}
+                className="w-24 px-2 py-1.5 rounded-lg border border-gray-300 text-sm text-center"
+              />
+              <span className="text-sm text-gray-500">px</span>
+            </div>
+          )}
+        </div>
+        {settings.resizeMode !== 'none' && (
+          <p className="text-xs text-gray-400 mt-1">元画像より大きい値を指定しても拡大はされません</p>
+        )}
+      </div>
+
       {/* 出力形式 */}
       <div>
         <p className="text-sm font-semibold text-gray-600 mb-2">出力形式</p>

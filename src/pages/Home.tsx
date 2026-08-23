@@ -1,15 +1,20 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, lazy, Suspense } from 'react'
 import { DropZone } from '../components/DropZone'
 import { PresetButtons } from '../components/PresetButtons'
 import { ConversionSettingsPanel } from '../components/ConversionSettings'
 import { FileCard } from '../components/FileCard'
 import { AdPlaceholder } from '../components/AdPlaceholder'
-import { PdfTab } from '../components/PdfTab'
-import { QrTab } from '../components/QrTab'
 import { convertImage, buildOutputFilename } from '../utils/imageConverter'
 import { downloadAsZip } from '../utils/zipDownloader'
 import { PRESETS, MAX_FILES } from '../constants/presets'
 import type { ConversionSettings, ConvertedFile } from '../types'
+
+const PdfTab = lazy(() => import('../components/PdfTab').then((m) => ({ default: m.PdfTab })))
+const QrTab = lazy(() => import('../components/QrTab').then((m) => ({ default: m.QrTab })))
+
+function TabLoading() {
+  return <p className="text-center text-sm text-gray-400 py-8">読み込み中...</p>
+}
 
 type AppTab = 'image' | 'pdf' | 'qr'
 
@@ -18,6 +23,8 @@ const DEFAULT_SETTINGS: ConversionSettings = {
   quality: 0.85,
   targetSizePreset: null,
   targetSizeKB: null,
+  resizeMode: 'none',
+  resizeValue: null,
 }
 
 function generateId() {
@@ -138,6 +145,15 @@ export function Home() {
         </p>
       </div>
 
+      {activeTab === 'image' && (
+        <div className="flex items-start gap-2 bg-blue-50 border border-blue-200 rounded-xl p-3">
+          <span className="text-blue-600 text-lg">🛡️</span>
+          <p className="text-sm text-blue-700">
+            変換後の画像から位置情報などのExif（撮影情報）は自動的に削除されます
+          </p>
+        </div>
+      )}
+
       {/* 画像変換タブ */}
       {activeTab === 'image' && (
         <>
@@ -199,8 +215,16 @@ export function Home() {
         </>
       )}
 
-      {activeTab === 'pdf' && <PdfTab />}
-      {activeTab === 'qr' && <QrTab />}
+      {activeTab === 'pdf' && (
+        <Suspense fallback={<TabLoading />}>
+          <PdfTab />
+        </Suspense>
+      )}
+      {activeTab === 'qr' && (
+        <Suspense fallback={<TabLoading />}>
+          <QrTab />
+        </Suspense>
+      )}
 
       <AdPlaceholder />
     </div>

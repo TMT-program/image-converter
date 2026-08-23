@@ -17,6 +17,8 @@ export const PRESETS: Preset[] = [
       quality: 0.85,
       targetSizePreset: '2MB',
       targetSizeKB: 2048,
+      resizeMode: 'none',
+      resizeValue: null,
     },
   },
   {
@@ -28,6 +30,8 @@ export const PRESETS: Preset[] = [
       quality: 0.8,
       targetSizePreset: '1MB',
       targetSizeKB: 1024,
+      resizeMode: 'none',
+      resizeValue: null,
     },
   },
   {
@@ -39,6 +43,8 @@ export const PRESETS: Preset[] = [
       quality: 0.8,
       targetSizePreset: '500KB',
       targetSizeKB: 512,
+      resizeMode: 'longEdge',
+      resizeValue: 1600,
     },
   },
 ]
